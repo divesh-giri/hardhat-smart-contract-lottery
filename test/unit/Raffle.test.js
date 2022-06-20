@@ -161,16 +161,22 @@ const { developmentChains } = require("../../helper-hardhat-config");
         await new Promise(async (resolve, reject) => {
           raffle.once("WinnerPicked", async () => {
             try {
-              const recentWinner = await raffle.getRecentWinner();
               // All the test will be done here
               const raffleState = await raffle.getRaffleState();
               const endingTimeStamp = await raffle.getLatestTimeStamp();
               const numPlayers = await raffle.getNumberOfPlayers();
-
+              const winnerEndingBalance = await accounts[1].getBalance();
               // asserts
               assert.equal(raffleState.toString(), "0");
               assert.equal(numPlayers.toString(), "0");
               assert(endingTimeStamp > startingTimeStamp);
+              assert.equal(
+                winnerEndingBalance.toString(),
+                winnerStartingBalance
+                  .add(raffleEntranceFee.mul(additionalAccounts))
+                  .add(raffleEntranceFee)
+                  .toString()
+              );
             } catch (e) {
               reject(e);
             }
@@ -178,11 +184,11 @@ const { developmentChains } = require("../../helper-hardhat-config");
           });
           const tx = await raffle.performUpkeep([]);
           const txReceipt = await tx.wait(1);
-          const winnerStartingBalance =
-            await vrfCoordinatorMock.fulfillRandomWords(
-              txReceipt.events[1].args.requestID,
-              raffle.address
-            );
+          const winnerStartingBalance = await accounts[1].getBalance();
+          await vrfCoordinatorMock.fulfillRandomWords(
+            txReceipt.events[1].args.requestID,
+            raffle.address
+          );
         });
       });
     });

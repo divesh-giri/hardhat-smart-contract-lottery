@@ -41,5 +41,10 @@ module.exports = {
     currency: "USD",
     // coinmarketcap: COIN_MARKET_CAP_KEY,
   },
-  mocha: {},
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+  },
+  mocha: {
+    timeout: 300000,
+  },
 };
