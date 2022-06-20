@@ -99,6 +99,7 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
                 uint256(s_raffleState),
                 s_players.length
             );
+        s_raffleState = RaffleState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
@@ -119,9 +120,10 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
             ""
         );
         if (!success) revert Raffle__TransferFailed();
-        emit WinnerPicked(s_recentWinner);
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
+        s_raffleState = RaffleState.OPEN;
+        emit WinnerPicked(s_recentWinner);
     }
 
     /* View/Pure  Functions */
@@ -156,5 +158,9 @@ contract Raffle is VRFConsumerBaseV2, KeeperCompatibleInterface {
 
     function getRequestConfirmations() public pure returns (uint256) {
         return REQUEST_CONFIRMATIONS;
+    }
+
+    function getInterval() public view returns (uint256) {
+        return i_interval;
     }
 }
