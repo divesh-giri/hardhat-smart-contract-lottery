@@ -41,4 +41,5 @@ module.exports = {
     currency: "USD",
     // coinmarketcap: COIN_MARKET_CAP_KEY,
   },
+  mocha: {},
 };
